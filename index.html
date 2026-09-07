@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Analizador DTD · Continuidad histórica</title>
+<meta name="theme-color" content="#07111f">
+<meta name="description" content="Analizador DTD de continuidad histórica: Digital, Terminación y Distancia.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DTD">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+:root{
+  --bg:#07111f;--panel:#0d1b2d;--panel2:#10243a;--line:#1d3953;--text:#edf6ff;
+  --muted:#8fa8bd;--cyan:#51d5ff;--green:#5ce1a3;--amber:#ffc857;--violet:#a98bff;
+  --red:#ff7185;--shadow:0 16px 42px rgba(0,0,0,.28);--radius:18px;
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 15% 0,#123051 0,#07111f 35%,#050b14 100%);color:var(--text);font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;min-height:100vh}
+button,input,select{font:inherit}.wrap{max-width:1500px;margin:auto;padding:22px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:18px}.brand{display:flex;gap:14px;align-items:center}.logoimg{width:58px;height:58px;border-radius:17px;object-fit:cover;box-shadow:0 10px 28px rgba(81,213,255,.22);border:1px solid rgba(81,213,255,.26)}.topActions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}.installBtn{display:none}.installBtn.show{display:inline-flex;align-items:center;gap:7px}h1{font-size:clamp(22px,3vw,34px);margin:0}.subtitle{color:var(--muted);margin-top:4px;font-size:14px}.badge{border:1px solid var(--line);background:rgba(16,36,58,.75);border-radius:999px;padding:8px 12px;color:#bfeaff;font-size:12px;white-space:nowrap}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}.card{background:linear-gradient(180deg,rgba(16,36,58,.94),rgba(10,25,42,.96));border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;overflow:hidden}.card h2{font-size:17px;margin:0 0 14px}.card h3{font-size:14px;margin:18px 0 10px;color:#cde6f7}.span12{grid-column:span 12}.span8{grid-column:span 8}.span7{grid-column:span 7}.span6{grid-column:span 6}.span5{grid-column:span 5}.span4{grid-column:span 4}.span3{grid-column:span 3}
+.drop{border:1.5px dashed #315b7c;border-radius:16px;padding:26px;text-align:center;background:rgba(7,17,31,.45);transition:.2s}.drop.drag{border-color:var(--cyan);background:rgba(81,213,255,.08)}.drop strong{display:block;font-size:18px;margin-bottom:7px}.drop p{margin:0 0 16px;color:var(--muted);font-size:13px}.btn{border:0;border-radius:12px;padding:11px 16px;font-weight:700;cursor:pointer;transition:.15s}.btn:hover{transform:translateY(-1px)}.btn.primary{background:linear-gradient(135deg,var(--cyan),#6d8cff);color:#06101d}.btn.secondary{background:#162e46;color:#d8ecfa;border:1px solid #244864}.btn.ghost{background:transparent;color:#b9d0df;border:1px solid var(--line)}.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}.fileinput{display:none}
+.statusline{display:flex;flex-wrap:wrap;gap:9px;margin-top:13px}.pill{padding:7px 10px;border-radius:999px;background:#102a42;border:1px solid #204662;color:#bad8e9;font-size:12px}.pill.ok{color:#bff8dc;border-color:#267554;background:#0d352b}.pill.warn{color:#ffe3a3;border-color:#795f23;background:#34290d}.pill.error{color:#ffc6cf;border-color:#7d3341;background:#35151c}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.kpi{background:#0a1a2b;border:1px solid #1a3954;border-radius:15px;padding:14px}.kpi .label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}.kpi .value{font-size:25px;font-weight:900;margin-top:7px}.kpi .small{font-size:12px;color:#9eb6c8;margin-top:4px}
+.stateHero{display:flex;align-items:center;justify-content:space-between;gap:16px;background:linear-gradient(135deg,rgba(81,213,255,.11),rgba(169,139,255,.11));border:1px solid #315778;border-radius:17px;padding:18px}.stateLabel{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.09em}.stateCode{font-size:clamp(26px,5vw,44px);font-weight:950;letter-spacing:.03em;margin-top:4px}.confidence{min-width:160px;text-align:right}.confidence b{font-size:26px}.confidence small{display:block;color:var(--muted)}
+.groups{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.group{border:1px solid var(--line);background:#091a2a;border-radius:14px;padding:12px}.group b{display:block;font-size:16px;margin-bottom:5px}.group span{color:var(--muted);font-size:12px}.a1{color:var(--cyan)}.a2{color:var(--green)}.a3{color:var(--amber)}
+.tableWrap{overflow:auto;max-height:490px;border:1px solid #19364e;border-radius:13px}table{border-collapse:collapse;width:100%;font-size:12px;min-width:700px}th,td{padding:10px 11px;border-bottom:1px solid #173149;text-align:right;white-space:nowrap}th{position:sticky;top:0;background:#10263b;color:#acd0e5;z-index:2;font-weight:700}td:first-child,th:first-child{text-align:left}tr:hover td{background:rgba(81,213,255,.035)}
+.ranking{display:flex;flex-direction:column;gap:9px}.rankrow{display:grid;grid-template-columns:38px 150px 1fr 78px 72px;align-items:center;gap:10px;background:#0a1b2c;border:1px solid #173750;border-radius:12px;padding:10px}.ranknum{width:28px;height:28px;border-radius:9px;background:#153652;display:grid;place-items:center;font-weight:800}.rankstate{font-weight:800;letter-spacing:.04em}.bar{height:9px;background:#102b42;border-radius:999px;overflow:hidden}.bar>i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--cyan),var(--violet))}.score{font-weight:800;text-align:right}.hits{color:var(--muted);font-size:11px;text-align:right}
+.controls{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.control{background:#0a1a2a;border:1px solid #183650;border-radius:13px;padding:12px}.control label{display:flex;justify-content:space-between;color:#c7dfed;font-size:12px;margin-bottom:8px}.control input[type=range]{width:100%}.control select,.control input[type=number]{width:100%;background:#0a1725;border:1px solid #274761;color:#eaf5fb;border-radius:9px;padding:8px}
+.tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:13px}.tab{padding:8px 11px;border-radius:10px;border:1px solid #21425e;background:#0c2135;color:#a9c9db;cursor:pointer}.tab.active{background:#183b58;color:#fff;border-color:#3a7196}.tabpane{display:none}.tabpane.active{display:block}
+.miniBars{display:flex;flex-direction:column;gap:12px}.miniRow{display:grid;grid-template-columns:100px 1fr 48px;gap:10px;align-items:center;font-size:12px}.miniTrack{height:12px;background:#0a1726;border-radius:999px;overflow:hidden;border:1px solid #18334a}.miniTrack i{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--cyan));border-radius:999px}.explain{color:#a9c0d1;font-size:13px;line-height:1.55}.formula{font-family:Consolas,monospace;background:#071521;border:1px solid #1b3a51;padding:10px 12px;border-radius:10px;color:#c5f0ff}.footer{color:#71899b;text-align:center;font-size:11px;padding:22px 0 5px}
+.good{color:var(--green)}.muted{color:var(--muted)}.right{text-align:right}.hidden{display:none!important}.notice{background:rgba(255,200,87,.08);border:1px solid rgba(255,200,87,.28);border-radius:12px;padding:11px 13px;color:#ead8ae;font-size:12px;line-height:1.45}.loading{display:inline-block;width:13px;height:13px;border:2px solid #34546d;border-top-color:var(--cyan);border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:1050px){.span8,.span7,.span6,.span5,.span4,.span3{grid-column:span 12}.kpis{grid-template-columns:repeat(2,1fr)}}@media(max-width:650px){.wrap{padding:12px}.topbar{align-items:flex-start}.topActions{justify-content:flex-end}.badge{display:none}.kpis,.groups,.controls{grid-template-columns:1fr}.rankrow{grid-template-columns:34px 1fr 58px}.rankrow .bar,.rankrow .hits{display:none}.stateHero{align-items:flex-start;flex-direction:column}.confidence{text-align:left}.card{padding:14px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand"><img class="logoimg" src="assets/icon-192.png" alt="Icono DTD"><div><h1>Analizador DTD</h1><div class="subtitle">Continuidad histórica · Digital · Terminación · Distancia</div></div></div>
+    <div class="topActions"><button class="btn secondary installBtn" id="installBtn" type="button">⬇ Instalar app</button><div class="badge">27 estados agrupados · 729 firmas exactas</div></div>
+  </div>
+
+  <div class="grid">
+    <section class="card span5">
+      <h2>1 · Cargar histórico</h2>
+      <div id="drop" class="drop">
+        <strong>sacaloto v1.xlsx</strong>
+        <p>Lee automáticamente la hoja BONOLOTO y las columnas C:H. A y B se usan solo como referencia.</p>
+        <button class="btn primary" id="chooseBtn">Seleccionar Excel</button>
+        <input class="fileinput" id="fileInput" type="file" accept=".xlsx,.xls,.xlsm">
+      </div>
+      <div class="statusline" id="status"><span class="pill">Esperando archivo</span></div>
+      <div style="margin-top:13px" class="notice">El análisis ordena cronológicamente por la fecha de la columna B cuando puede interpretarla. Si no, respeta el orden del Excel. Puedes invertirlo manualmente en Ajustes.</div>
+    </section>
+
+    <section class="card span7">
+      <h2>2 · Resumen del histórico</h2>
+      <div class="kpis">
+        <div class="kpi"><div class="label">Sorteos válidos</div><div class="value" id="kRows">—</div><div class="small">combinaciones C:H</div></div>
+        <div class="kpi"><div class="label">Firmas DTD vistas</div><div class="value" id="kExact">—</div><div class="small">de 729 posibles</div></div>
+        <div class="kpi"><div class="label">Estados agrupados</div><div class="value" id="kStates">—</div><div class="small">de 27 válidos</div></div>
+        <div class="kpi"><div class="label">Transiciones</div><div class="value" id="kTrans">—</div><div class="small">pares histórico→siguiente</div></div>
+      </div>
+      <h3>Agrupaciones</h3>
+      <div class="groups"><div class="group"><b class="a1">A1</b><span>1 · 4 · 7</span></div><div class="group"><b class="a2">A2</b><span>2 · 5 · 8</span></div><div class="group"><b class="a3">A3</b><span>3 · 6 · 9</span></div></div>
+    </section>
+
+    <section class="card span8">
+      <h2>3 · Recomendación de continuidad</h2>
+      <div class="stateHero">
+        <div><div class="stateLabel">Firma agrupada recomendada</div><div class="stateCode" id="recommended">—</div><div class="muted" id="recReason" style="margin-top:5px;font-size:12px">Carga el histórico para iniciar el análisis.</div></div>
+        <div class="confidence"><small>fuerza relativa</small><b id="confidence">—</b><small id="confidenceSub">comparación entre candidatos</small></div>
+      </div>
+      <h3>Ranking de los 27 estados posibles</h3>
+      <div class="ranking" id="ranking"><div class="muted">Sin datos.</div></div>
+    </section>
+
+    <section class="card span4">
+      <h2>4 · Ajustes del análisis</h2>
+      <div class="controls">
+        <div class="control"><label><span>Transición último estado</span><b id="w1v">35%</b></label><input id="w1" type="range" min="0" max="100" value="35"></div>
+        <div class="control"><label><span>Contexto de 2 estados</span><b id="w2v">25%</b></label><input id="w2" type="range" min="0" max="100" value="25"></div>
+        <div class="control"><label><span>Tendencia reciente</span><b id="w3v">20%</b></label><input id="w3" type="range" min="0" max="100" value="20"></div>
+        <div class="control"><label><span>Transiciones D/T/Dist</span><b id="w4v">20%</b></label><input id="w4" type="range" min="0" max="100" value="20"></div>
+        <div class="control"><label><span>Ventana reciente</span><b id="windowV">81</b></label><input id="window" type="range" min="18" max="243" step="9" value="81"></div>
+        <div class="control"><label><span>Orden histórico</span></label><select id="order"><option value="auto">Automático por fecha</option><option value="sheet">Tal como está en Excel</option><option value="reverse">Invertir filas del Excel</option></select></div>
+      </div>
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button id="reanalyze" class="btn secondary" disabled>Recalcular</button><button id="resetWeights" class="btn ghost">Pesos iniciales</button></div>
+      <p class="explain">Los porcentajes son pesos relativos. La app los normaliza automáticamente; no es necesario que sumen 100.</p>
+    </section>
+
+    <section class="card span6">
+      <h2>5 · Backtest histórico</h2>
+      <div class="kpis" style="grid-template-columns:repeat(3,1fr)">
+        <div class="kpi"><div class="label">Top 1</div><div class="value" id="bt1">—</div><div class="small">firma exacta agrupada</div></div>
+        <div class="kpi"><div class="label">Top 3</div><div class="value" id="bt3">—</div><div class="small">estado real entre 3 mejores</div></div>
+        <div class="kpi"><div class="label">Top 5</div><div class="value" id="bt5">—</div><div class="small">estado real entre 5 mejores</div></div>
+      </div>
+      <h3>Qué mide</h3><p class="explain">Recorre el histórico sin mirar el futuro: en cada punto utiliza únicamente los sorteos anteriores, genera un ranking para el siguiente y después comprueba dónde quedó el estado real. Así puedes comparar ajustes sin basarte solo en frecuencias globales.</p>
+      <div id="btStatus" class="statusline"><span class="pill">Sin ejecutar</span></div>
+    </section>
+
+    <section class="card span6">
+      <h2>6 · Estado actual y componentes</h2>
+      <div id="lastDetail" class="muted">Sin datos.</div>
+      <h3>Probabilidad por componente</h3>
+      <div id="componentBars" class="miniBars"></div>
+    </section>
+
+    <section class="card span12">
+      <h2>7 · Explorador</h2>
+      <div class="tabs"><button class="tab active" data-tab="recent">Últimos sorteos</button><button class="tab" data-tab="transitions">Continuaciones</button><button class="tab" data-tab="states">27 estados</button><button class="tab" data-tab="exact">Firmas exactas</button></div>
+      <div id="recent" class="tabpane active"><div class="tableWrap"><table><thead><tr><th>#</th><th>Fecha</th><th>N1</th><th>N2</th><th>N3</th><th>N4</th><th>N5</th><th>N6</th><th>D</th><th>T</th><th>Dist</th><th>VFDTD</th><th>Estado</th></tr></thead><tbody id="recentBody"></tbody></table></div></div>
+      <div id="transitions" class="tabpane"><div id="transitionInfo" class="explain"></div><div class="tableWrap" style="margin-top:10px"><table><thead><tr><th>Siguiente estado</th><th>Veces</th><th>% tras estado actual</th><th>Frecuencia global</th><th>Índice continuidad</th></tr></thead><tbody id="transitionBody"></tbody></table></div></div>
+      <div id="states" class="tabpane"><div class="tableWrap"><table><thead><tr><th>Estado</th><th>VFDTD obligado</th><th>Veces</th><th>% histórico</th><th>Última aparición</th><th>Retraso</th></tr></thead><tbody id="statesBody"></tbody></table></div></div>
+      <div id="exact" class="tabpane"><div class="tableWrap"><table><thead><tr><th>Firma DTD</th><th>VFDTD</th><th>Agrupación</th><th>Veces</th><th>% histórico</th></tr></thead><tbody id="exactBody"></tbody></table></div></div>
+    </section>
+
+    <section class="card span12">
+      <h2>Cómo se calcula</h2>
+      <div class="grid">
+        <div class="span3"><div class="formula">D = VD(Σ firma digital)</div><p class="explain">Firma digital de los seis números y reducción de su suma a 1–9.</p></div>
+        <div class="span3"><div class="formula">T = VD(Σ terminaciones)</div><p class="explain">Terminación 0–9 de cada número; la suma se reduce a 1–9.</p></div>
+        <div class="span3"><div class="formula">Dist = VD(Σ 5 distancias)</div><p class="explain">Equivale también a VD(N6−N1), aunque se conserva la firma de cinco distancias.</p></div>
+        <div class="span3"><div class="formula">VFDTD = VD(D+T+Dist)</div><p class="explain">La agrupación final A1/A2/A3 queda determinada por los tres componentes anteriores.</p></div>
+      </div>
+    </section>
+  </div>
+  <div class="footer">Analizador DTD · herramienta exploratoria sobre histórico 6/49 · PWA instalable</div>
+</div>
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+let rawRows=[], rows=[], analysis=null;
+const groups={A1:[1,4,7],A2:[2,5,8],A3:[3,6,9]};
+function dr(n){ n=Math.round(Math.abs(Number(n)||0)); return n===0?9:((n-1)%9)+1 }
+function grp(v){ return v%3===1?'A1':v%3===2?'A2':'A3' }
+function vfGroupFromABC(a,b,c){ const idx={A1:1,A2:2,A3:0}; const r=(idx[a]+idx[b]+idx[c])%3; return r===1?'A1':r===2?'A2':'A3' }
+function parseExcelDate(v){
+  if(v instanceof Date && !isNaN(v)) return v;
+  if(typeof v==='number' && v>20000 && v<70000){ const d=XLSX.SSF.parse_date_code(v); if(d) return new Date(d.y,d.m-1,d.d); }
+  if(typeof v==='string'){
+    const s=v.trim(); let m=s.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{2,4})$/); if(m){let y=+m[3];if(y<100)y+=2000;let d=new Date(y,+m[2]-1,+m[1]);if(!isNaN(d))return d}
+    const d=new Date(s); if(!isNaN(d)) return d;
+  }
+  return null;
+}
+function fmtDate(d,raw){ if(d) return d.toLocaleDateString('es-ES'); return raw??'' }
+function stateOf(nums){
+  nums=[...nums].map(Number).sort((a,b)=>a-b);
+  const digital=nums.map(dr), D=dr(digital.reduce((a,b)=>a+b,0));
+  const terms=nums.map(n=>((n%10)+10)%10), T=dr(terms.reduce((a,b)=>a+b,0));
+  const distances=[]; for(let i=0;i<5;i++) distances.push(nums[i+1]-nums[i]);
+  const Dist=dr(distances.reduce((a,b)=>a+b,0));
+  const VF=dr(D+T+Dist); const a=grp(D),b=grp(T),c=grp(Dist),v=grp(VF);
+  return {nums,digital,terms,distances,D,T,Dist,VF,exact:`${D}-${T}-${Dist}_${VF}`,state:`${a}-${b}-${c}_${v}`,a,b,c,v};
+}
+function allStates(){ const A=['A1','A2','A3'], out=[]; for(const a of A)for(const b of A)for(const c of A){const v=vfGroupFromABC(a,b,c);out.push(`${a}-${b}-${c}_${v}`)} return out }
+const STATES=allStates();
+function validNums(vals){ if(vals.length!==6)return false; const a=vals.map(Number); return a.every(Number.isFinite)&&a.every(n=>n>=1&&n<=49)&&new Set(a).size===6 }
+function setStatus(text,type=''){ $('#status').innerHTML=`<span class="pill ${type}">${text}</span>` }
+async function handleFile(file){
+  try{
+    setStatus('<span class="loading"></span> Leyendo Excel…');
+    const buf=await file.arrayBuffer(); const wb=XLSX.read(buf,{type:'array',cellDates:true});
+    const sheetName=wb.SheetNames.find(n=>n.trim().toUpperCase()==='BONOLOTO');
+    if(!sheetName) throw new Error('No se encuentra la hoja BONOLOTO');
+    const data=XLSX.utils.sheet_to_json(wb.Sheets[sheetName],{header:1,raw:true,defval:null});
+    rawRows=[];
+    data.forEach((r,i)=>{
+      const vals=r.slice(2,8); if(!validNums(vals)) return;
+      const date=parseExcelDate(r[1]); const calc=stateOf(vals);
+      rawRows.push({sourceRow:i+1,draw:r[0],date,dateRaw:r[1],...calc});
+    });
+    if(rawRows.length<20) throw new Error('Se han encontrado muy pocas combinaciones válidas en C:H');
+    $('#reanalyze').disabled=false; setStatus(`${file.name} · BONOLOTO · ${rawRows.length.toLocaleString('es-ES')} sorteos`,'ok');
+    recalc();
+  }catch(e){ console.error(e); setStatus(e.message||'No se pudo leer el archivo','error'); }
+}
+function orderedRows(){
+  let arr=rawRows.map(x=>({...x})); const mode=$('#order').value;
+  if(mode==='reverse') return arr.reverse();
+  if(mode==='sheet') return arr;
+  const dated=arr.filter(x=>x.date).length;
+  if(dated/arr.length>.8) arr.sort((a,b)=>a.date-b.date||a.sourceRow-b.sourceRow);
+  return arr;
+}
+function countMap(arr,keyfn=x=>x){const m=new Map();for(const x of arr){const k=keyfn(x);m.set(k,(m.get(k)||0)+1)}return m}
+function transitionCounts(seq){const m=new Map();for(let i=0;i<seq.length-1;i++){const a=seq[i].state,b=seq[i+1].state;if(!m.has(a))m.set(a,new Map());const mm=m.get(a);mm.set(b,(mm.get(b)||0)+1)}return m}
+function context2Counts(seq){const m=new Map();for(let i=1;i<seq.length-1;i++){const k=seq[i-1].state+'>'+seq[i].state,b=seq[i+1].state;if(!m.has(k))m.set(k,new Map());const mm=m.get(k);mm.set(b,(mm.get(b)||0)+1)}return m}
+function componentTransition(seq,field){const m=new Map();for(let i=0;i<seq.length-1;i++){const a=seq[i][field],b=seq[i+1][field];if(!m.has(a))m.set(a,new Map());const mm=m.get(a);mm.set(b,(mm.get(b)||0)+1)}return m}
+function probFromMap(mm,key,prior=1,totalCats=27){if(!mm)return 1/totalCats;let total=0;for(const v of mm.values())total+=v;return ((mm.get(key)||0)+prior)/(total+prior*totalCats)}
+function getWeights(){return [+$(' #w1'.trim()).value,+$('#w2').value,+$('#w3').value,+$('#w4').value]}
+function rankCandidates(seq,winOverride=null){
+  if(seq.length<3)return [];
+  const [w1,w2,w3,w4]=getWeights(), ws=w1+w2+w3+w4||1; const weights=[w1/ws,w2/ws,w3/ws,w4/ws];
+  const t1=transitionCounts(seq), t2=context2Counts(seq); const last=seq.at(-1), prev=seq.at(-2);
+  const recentN=winOverride??+$('#window').value, recent=seq.slice(-Math.min(recentN,seq.length)); const recentCounts=countMap(recent,x=>x.state);
+  const cd=componentTransition(seq,'a'),ct=componentTransition(seq,'b'),cx=componentTransition(seq,'c');
+  const parts=s=>{const [abc,v]=s.split('_');const [a,b,c]=abc.split('-');return {a,b,c,v}};
+  const key2=prev.state+'>'+last.state;
+  const globalCounts=countMap(seq,x=>x.state);
+  return STATES.map(state=>{
+    const p=parts(state);
+    const p1=probFromMap(t1.get(last.state),state,0.6,27);
+    const p2=probFromMap(t2.get(key2),state,0.6,27);
+    const pr=((recentCounts.get(state)||0)+0.6)/(recent.length+0.6*27);
+    const pc=(probFromMap(cd.get(last.a),p.a,0.7,3)+probFromMap(ct.get(last.b),p.b,0.7,3)+probFromMap(cx.get(last.c),p.c,0.7,3))/3;
+    const g=((globalCounts.get(state)||0)+0.6)/(seq.length+0.6*27);
+    const raw=weights[0]*p1+weights[1]*p2+weights[2]*pr+weights[3]*pc;
+    return {state,raw,p1,p2,pr,pc,g};
+  }).sort((a,b)=>b.raw-a.raw);
+}
+function backtest(seq){
+  if(seq.length<80)return {n:0,t1:0,t3:0,t5:0};
+  const start=Math.max(54,Math.floor(seq.length*.12)); let n=0,h1=0,h3=0,h5=0;
+  const step=seq.length>4000?3:seq.length>1800?2:1;
+  for(let i=start;i<seq.length;i+=step){ const hist=seq.slice(0,i); const rank=rankCandidates(hist); const actual=seq[i].state; const pos=rank.findIndex(x=>x.state===actual); if(pos<0)continue;n++;if(pos===0)h1++;if(pos<3)h3++;if(pos<5)h5++; }
+  return {n,t1:h1/n,t3:h3/n,t5:h5/n,step};
+}
+function recalc(){
+  rows=orderedRows(); analysis={}; if(rows.length<3)return;
+  const exact=countMap(rows,x=>x.exact), states=countMap(rows,x=>x.state), trans=transitionCounts(rows), ranking=rankCandidates(rows); analysis={exact,states,trans,ranking};
+  renderSummary(); renderRanking(); renderRecent(); renderTransitions(); renderStates(); renderExact(); renderComponents();
+  $('#btStatus').innerHTML='<span class="pill"><span class="loading"></span> Calculando backtest…</span>';
+  setTimeout(()=>{const bt=backtest(rows);analysis.bt=bt;renderBacktest();},20);
+}
+function pct(x,d=1){return (100*x).toLocaleString('es-ES',{minimumFractionDigits:d,maximumFractionDigits:d})+'%'}
+function renderSummary(){
+  $('#kRows').textContent=rows.length.toLocaleString('es-ES'); $('#kExact').textContent=analysis.exact.size; $('#kStates').textContent=analysis.states.size; $('#kTrans').textContent=Math.max(0,rows.length-1).toLocaleString('es-ES');
+  const last=rows.at(-1); $('#lastDetail').innerHTML=`<div class="formula" style="font-size:16px">${last.nums.map(n=>String(n).padStart(2,'0')).join(' · ')}</div><div style="margin-top:10px;line-height:1.7"><b>D:</b> ${last.D} (${last.a}) &nbsp; <b>T:</b> ${last.T} (${last.b}) &nbsp; <b>Dist:</b> ${last.Dist} (${last.c}) &nbsp; <b>VFDTD:</b> ${last.VF} (${last.v})<br><b>Firma exacta:</b> ${last.exact}<br><b>Estado:</b> ${last.state}</div>`;
+}
+function renderRanking(){
+  const r=analysis.ranking, top=r[0], second=r[1]; $('#recommended').textContent=top.state;
+  const spread=top.raw>0?(top.raw-second.raw)/top.raw:0; const strength=Math.max(0,Math.min(99,50+spread*220)); $('#confidence').textContent=strength.toFixed(0)+'/100';
+  $('#confidenceSub').textContent=`ventaja sobre 2.º: ${pct(spread)}`; $('#recReason').textContent=`Continuación calculada desde ${rows.length.toLocaleString('es-ES')} sorteos y los pesos activos.`;
+  const max=top.raw; $('#ranking').innerHTML=r.map((x,i)=>`<div class="rankrow"><div class="ranknum">${i+1}</div><div class="rankstate">${x.state}</div><div class="bar"><i style="width:${(x.raw/max*100).toFixed(1)}%"></i></div><div class="score">${(x.raw*100).toFixed(2)}</div><div class="hits">hist. ${pct(x.g,1)}</div></div>`).join('');
+}
+function renderRecent(){
+  const a=rows.slice(-100).reverse(); $('#recentBody').innerHTML=a.map((r,i)=>`<tr><td>${r.draw??(rows.length-i)}</td><td>${fmtDate(r.date,r.dateRaw)}</td>${r.nums.map(n=>`<td>${String(n).padStart(2,'0')}</td>`).join('')}<td>${r.D}</td><td>${r.T}</td><td>${r.Dist}</td><td>${r.VF}</td><td><b>${r.state}</b></td></tr>`).join('');
+}
+function renderTransitions(){
+  const last=rows.at(-1), mm=analysis.trans.get(last.state)||new Map(), total=[...mm.values()].reduce((a,b)=>a+b,0), global=countMap(rows,x=>x.state);
+  $('#transitionInfo').innerHTML=`Continuaciones observadas después de <b>${last.state}</b>: <b>${total}</b>. Se compara cada continuación con su frecuencia normal en todo el histórico.`;
+  const arr=STATES.map(s=>{const n=mm.get(s)||0,p=total?n/total:0,g=(global.get(s)||0)/rows.length,idx=g?p/g:0;return{s,n,p,g,idx}}).sort((a,b)=>b.p-a.p||b.idx-a.idx);
+  $('#transitionBody').innerHTML=arr.map(x=>`<tr><td><b>${x.s}</b></td><td>${x.n}</td><td>${pct(x.p)}</td><td>${pct(x.g)}</td><td>${x.idx.toFixed(2)}×</td></tr>`).join('');
+}
+function renderStates(){
+  const lastIndex=new Map(); rows.forEach((r,i)=>lastIndex.set(r.state,i));
+  $('#statesBody').innerHTML=STATES.map(s=>{const n=analysis.states.get(s)||0, li=lastIndex.has(s)?lastIndex.get(s):-1, delay=li<0?'—':rows.length-1-li, vf=s.split('_')[1];return{s,n,p:n/rows.length,li,delay,vf}}).sort((a,b)=>b.n-a.n).map(x=>`<tr><td><b>${x.s}</b></td><td>${x.vf}</td><td>${x.n}</td><td>${pct(x.p)}</td><td>${x.li<0?'—':rows.length-x.li+' desde el inicio'}</td><td>${x.delay}</td></tr>`).join('');
+}
+function renderExact(){
+  const arr=[...analysis.exact.entries()].map(([e,n])=>{const [abc,vf]=e.split('_'), [D,T,Dist]=abc.split('-').map(Number);return{e,n,vf,state:`${grp(D)}-${grp(T)}-${grp(Dist)}_${grp(+vf)}`}}).sort((a,b)=>b.n-a.n);
+  $('#exactBody').innerHTML=arr.map(x=>`<tr><td><b>${x.e}</b></td><td>${x.vf}</td><td>${x.state}</td><td>${x.n}</td><td>${pct(x.n/rows.length,2)}</td></tr>`).join('');
+}
+function renderComponents(){
+  const last=rows.at(-1), cd=componentTransition(rows,'a'),ct=componentTransition(rows,'b'),cx=componentTransition(rows,'c'); const specs=[['D',last.a,cd],['T',last.b,ct],['Dist',last.c,cx]]; let out='';
+  for(const [name,cur,m] of specs){const mm=m.get(cur)||new Map();let tot=[...mm.values()].reduce((a,b)=>a+b,0);for(const a of ['A1','A2','A3']){const p=tot?(mm.get(a)||0)/tot:0;out+=`<div class="miniRow"><div>${name} → <b>${a}</b></div><div class="miniTrack"><i style="width:${(p*100).toFixed(1)}%"></i></div><div>${pct(p,0)}</div></div>`}}
+  $('#componentBars').innerHTML=out;
+}
+function renderBacktest(){const b=analysis.bt;if(!b.n){$('#btStatus').innerHTML='<span class="pill warn">Histórico insuficiente</span>';return}$('#bt1').textContent=pct(b.t1);$('#bt3').textContent=pct(b.t3);$('#bt5').textContent=pct(b.t5);$('#btStatus').innerHTML=`<span class="pill ok">${b.n.toLocaleString('es-ES')} pronósticos retrospectivos evaluados${b.step>1?' · muestreo cada '+b.step+' sorteos':''}</span>`}
+$('#chooseBtn').onclick=()=>$('#fileInput').click(); $('#fileInput').onchange=e=>e.target.files[0]&&handleFile(e.target.files[0]);
+const drop=$('#drop'); ['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('drag')})); ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('drag')})); drop.addEventListener('drop',e=>e.dataTransfer.files[0]&&handleFile(e.dataTransfer.files[0]));
+$$('input[type=range]').forEach(el=>el.addEventListener('input',()=>{if(el.id.startsWith('w'))$('#'+el.id+'v').textContent=el.value+'%';if(el.id==='window')$('#windowV').textContent=el.value}));
+$('#reanalyze').onclick=recalc; $('#order').onchange=()=>rawRows.length&&recalc();
+$('#resetWeights').onclick=()=>{[['w1',35],['w2',25],['w3',20],['w4',20],['window',81]].forEach(([id,v])=>{$('#'+id).value=v;$('#'+id).dispatchEvent(new Event('input'))});if(rawRows.length)recalc()};
+$$('.tab').forEach(b=>b.onclick=()=>{$$('.tab').forEach(x=>x.classList.remove('active'));$$('.tabpane').forEach(x=>x.classList.remove('active'));b.classList.add('active');$('#'+b.dataset.tab).classList.add('active')});
+
+// Instalación PWA
+let deferredInstallPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();
+  deferredInstallPrompt=e;
+  $('#installBtn').classList.add('show');
+});
+$('#installBtn').addEventListener('click',async()=>{
+  if(!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt=null;
+  $('#installBtn').classList.remove('show');
+});
+window.addEventListener('appinstalled',()=>{
+  deferredInstallPrompt=null;
+  $('#installBtn').classList.remove('show');
+});
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(err=>console.warn('Service worker:',err)));
+}
+</script>
+</body>
+</html>
