@@ -1,4 +1,5 @@
-const CACHE_NAME = 'analizador-dtd-v1.0.1';
+const CACHE_PREFIX = 'analizador-dtd-';
+const CACHE_NAME = `${CACHE_PREFIX}v1.0.2`;
 const LOCAL_ASSETS = [
   './',
   './index.html',
@@ -28,16 +29,19 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
   event.waitUntil((async () => {
     const keys = await caches.keys();
-    await Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)));
+    await Promise.all(
+      keys
+        .filter(k => k.startsWith(CACHE_PREFIX) && k !== CACHE_NAME)
+        .map(k => caches.delete(k))
+    );
     await self.clients.claim();
   })());
 });
 
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
-  const url = new URL(event.request.url);
 
-  // Navegación: intenta red primero para recibir versiones nuevas; si no hay red, usa index.html.
+  // Navegación: red primero para recibir versiones nuevas; si no hay red, usa index.html.
   if (event.request.mode === 'navigate') {
     event.respondWith((async () => {
       try {
@@ -67,6 +71,7 @@ self.addEventListener('fetch', event => {
       })());
       return cached;
     }
+
     try {
       const fresh = await fetch(event.request);
       if (fresh && fresh.ok) {
