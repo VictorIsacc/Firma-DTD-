@@ -20,7 +20,7 @@
   --red:#ff7185;--shadow:0 16px 42px rgba(0,0,0,.28);--radius:18px;
 }
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 15% 0,#123051 0,#07111f 35%,#050b14 100%);color:var(--text);font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;min-height:100vh}
-button,input,select{font:inherit}.wrap{max-width:1500px;margin:auto;padding:22px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:18px}.brand{display:flex;gap:14px;align-items:center}.logoimg{width:58px;height:58px;border-radius:17px;object-fit:cover;box-shadow:0 10px 28px rgba(81,213,255,.22);border:1px solid rgba(81,213,255,.26)}.topActions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}.installBtn{display:none}.installBtn.show{display:inline-flex;align-items:center;gap:7px}h1{font-size:clamp(22px,3vw,34px);margin:0}.subtitle{color:var(--muted);margin-top:4px;font-size:14px}.badge{border:1px solid var(--line);background:rgba(16,36,58,.75);border-radius:999px;padding:8px 12px;color:#bfeaff;font-size:12px;white-space:nowrap}
+button,input,select{font:inherit}.wrap{max-width:1500px;margin:auto;padding:22px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:18px}.brand{display:flex;gap:14px;align-items:center}.logoimg{width:58px;height:58px;border-radius:17px;object-fit:cover;box-shadow:0 10px 28px rgba(81,213,255,.22);border:1px solid rgba(81,213,255,.26)}.topActions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}.installBtn{display:inline-flex;align-items:center;gap:7px}.installBtn.hide{display:none}h1{font-size:clamp(22px,3vw,34px);margin:0}.subtitle{color:var(--muted);margin-top:4px;font-size:14px}.badge{border:1px solid var(--line);background:rgba(16,36,58,.75);border-radius:999px;padding:8px 12px;color:#bfeaff;font-size:12px;white-space:nowrap}
 .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}.card{background:linear-gradient(180deg,rgba(16,36,58,.94),rgba(10,25,42,.96));border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;overflow:hidden}.card h2{font-size:17px;margin:0 0 14px}.card h3{font-size:14px;margin:18px 0 10px;color:#cde6f7}.span12{grid-column:span 12}.span8{grid-column:span 8}.span7{grid-column:span 7}.span6{grid-column:span 6}.span5{grid-column:span 5}.span4{grid-column:span 4}.span3{grid-column:span 3}
 .drop{border:1.5px dashed #315b7c;border-radius:16px;padding:26px;text-align:center;background:rgba(7,17,31,.45);transition:.2s}.drop.drag{border-color:var(--cyan);background:rgba(81,213,255,.08)}.drop strong{display:block;font-size:18px;margin-bottom:7px}.drop p{margin:0 0 16px;color:var(--muted);font-size:13px}.btn{border:0;border-radius:12px;padding:11px 16px;font-weight:700;cursor:pointer;transition:.15s}.btn:hover{transform:translateY(-1px)}.btn.primary{background:linear-gradient(135deg,var(--cyan),#6d8cff);color:#06101d}.btn.secondary{background:#162e46;color:#d8ecfa;border:1px solid #244864}.btn.ghost{background:transparent;color:#b9d0df;border:1px solid var(--line)}.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}.fileinput{display:none}
 .statusline{display:flex;flex-wrap:wrap;gap:9px;margin-top:13px}.pill{padding:7px 10px;border-radius:999px;background:#102a42;border:1px solid #204662;color:#bad8e9;font-size:12px}.pill.ok{color:#bff8dc;border-color:#267554;background:#0d352b}.pill.warn{color:#ffe3a3;border-color:#795f23;background:#34290d}.pill.error{color:#ffc6cf;border-color:#7d3341;background:#35151c}
@@ -270,24 +270,45 @@ $$('.tab').forEach(b=>b.onclick=()=>{$$('.tab').forEach(x=>x.classList.remove('a
 
 // Instalación PWA
 let deferredInstallPrompt=null;
+const installBtn=$('#installBtn');
+const isStandalone=()=>window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true;
+
+function refreshInstallButton(){
+  installBtn.classList.toggle('hide',isStandalone());
+}
+refreshInstallButton();
+
 window.addEventListener('beforeinstallprompt',e=>{
   e.preventDefault();
   deferredInstallPrompt=e;
-  $('#installBtn').classList.add('show');
+  installBtn.textContent='⬇ Instalar app';
+  refreshInstallButton();
 });
-$('#installBtn').addEventListener('click',async()=>{
-  if(!deferredInstallPrompt) return;
-  deferredInstallPrompt.prompt();
-  await deferredInstallPrompt.userChoice;
-  deferredInstallPrompt=null;
-  $('#installBtn').classList.remove('show');
+
+installBtn.addEventListener('click',async()=>{
+  if(isStandalone()) return;
+  if(deferredInstallPrompt){
+    deferredInstallPrompt.prompt();
+    await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt=null;
+    return;
+  }
+  const isiOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  if(isiOS){
+    alert('En iPhone/iPad: pulsa Compartir y después “Añadir a pantalla de inicio”.');
+  }else{
+    alert('El navegador todavía no ha habilitado el diálogo automático. En Chrome/Edge abre el menú ⋮ y elige “Instalar Analizador DTD” o “Instalar aplicación”. Si acabas de actualizar esta versión, recarga la página una vez.');
+  }
 });
+
 window.addEventListener('appinstalled',()=>{
   deferredInstallPrompt=null;
-  $('#installBtn').classList.remove('show');
+  refreshInstallButton();
 });
+window.matchMedia('(display-mode: standalone)').addEventListener?.('change',refreshInstallButton);
+
 if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(err=>console.warn('Service worker:',err)));
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js',{scope:'./'}).catch(err=>console.warn('Service worker:',err)));
 }
 </script>
 </body>

@@ -1,5 +1,5 @@
 {
-  "id": "./",
+  "id": "/analizador-dtd-continuidad/",
   "name": "Analizador DTD · Continuidad histórica",
   "short_name": "DTD",
   "description": "Analizador de continuidad histórica mediante firmas Digital, Terminación y Distancia.",
@@ -8,11 +8,18 @@
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "display_override": ["window-controls-overlay", "standalone"],
+  "display_override": [
+    "window-controls-overlay",
+    "standalone"
+  ],
   "orientation": "any",
   "background_color": "#07111f",
   "theme_color": "#07111f",
-  "categories": ["utilities", "productivity"],
+  "categories": [
+    "utilities",
+    "productivity"
+  ],
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "assets/icon-192.png",
