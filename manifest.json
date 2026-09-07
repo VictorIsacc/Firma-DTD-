@@ -1,12 +1,12 @@
 {
-  "id": "/analizador-dtd-continuidad/",
+  "id": "/Firma-DTD-/",
   "name": "Analizador DTD · Continuidad histórica",
   "short_name": "DTD",
   "description": "Analizador de continuidad histórica mediante firmas Digital, Terminación y Distancia.",
   "lang": "es-ES",
   "dir": "ltr",
-  "start_url": "./",
-  "scope": "./",
+  "start_url": "/Firma-DTD-/",
+  "scope": "/Firma-DTD-/",
   "display": "standalone",
   "display_override": [
     "window-controls-overlay",
